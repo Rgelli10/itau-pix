@@ -1,10 +1,10 @@
 package com.itau.pix.massas;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itau.pix.model.PixKey;
-import com.itau.pix.model.TipoChave;
-import com.itau.pix.model.dto.PixKeyRequestDto;
-import com.itau.pix.model.dto.PixKeyUpdateRequestDto;
+import com.itau.pix.model.PixModelo;
+import com.itau.pix.model.enums.TipoChave;
+import com.itau.pix.model.dto.PixRequisicaoDto;
+import com.itau.pix.model.dto.PixAlterarRequisicaoDto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.UUID;
 
 public class GeradorMassas {
-    public static PixKeyRequestDto createPixKeyRequestDto() {
-        PixKeyRequestDto dto = new PixKeyRequestDto();
+    public static PixRequisicaoDto createPixKeyRequestDto() {
+        PixRequisicaoDto dto = new PixRequisicaoDto();
         dto.setId("1234567891011");
         dto.setTipoChave(TipoChave.EMAIL);
         dto.setValorChave("test@example.com");
@@ -27,18 +27,18 @@ public class GeradorMassas {
         return dto;
     }
 
-    public static List<PixKey> createPixKeyList(int size) {
-        List<PixKey> pixKeyList = new ArrayList<>();
+    public static List<PixModelo> createPixKeyList(int size) {
+        List<PixModelo> pixKeyList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            PixKey pixKey = createPixKey();
+            PixModelo pixKey = createPixKey();
             pixKey.setId(UUID.randomUUID().toString());
             pixKeyList.add(pixKey);
         }
         return pixKeyList;
     }
 
-    public static PixKeyUpdateRequestDto createPixKeyUpdateRequestDto() {
-        PixKeyUpdateRequestDto dto = new PixKeyUpdateRequestDto();
+    public static PixAlterarRequisicaoDto createPixKeyUpdateRequestDto() {
+        PixAlterarRequisicaoDto dto = new PixAlterarRequisicaoDto();
         dto.setId("1234567891011");
         dto.setTipoChave(TipoChave.CPF); // ou qualquer valor válido
         dto.setValorChave("123.456.789-00");
@@ -50,8 +50,8 @@ public class GeradorMassas {
         return dto;
     }
 
-    public static PixKey createPixKey() {
-        PixKey pixKey = new PixKey();
+    public static PixModelo createPixKey() {
+        PixModelo pixKey = new PixModelo();
         pixKey.setId(UUID.randomUUID().toString());
         pixKey.setTipoChave(TipoChave.EMAIL); // ou qualquer valor válido
         pixKey.setValorChave("Teste@teste.com");
@@ -66,15 +66,15 @@ public class GeradorMassas {
         return pixKey;
     }
 
-    public static PixKey createDeactivatedPixKey() {
-        PixKey pixKey = createPixKey();
+    public static PixModelo createDeactivatedPixKey() {
+        PixModelo pixKey = createPixKey();
         pixKey.setInativa(true);
         pixKey.setDataHoraInativacao(LocalDateTime.now());
         return pixKey;
     }
 
-    public static PixKeyRequestDto createPixKeyRequestDtoDuplucate() {
-        PixKeyRequestDto dto = new PixKeyRequestDto();
+    public static PixRequisicaoDto createPixKeyRequestDtoDuplucate() {
+        PixRequisicaoDto dto = new PixRequisicaoDto();
         dto.setId(UUID.randomUUID().toString());
         dto.setTipoChave(TipoChave.EMAIL);
         dto.setValorChave("test@example.com");
@@ -86,8 +86,8 @@ public class GeradorMassas {
         return dto;
     }
 
-    public static PixKeyRequestDto createPixKeyInvalid() {
-        PixKeyRequestDto pixKey = new PixKeyRequestDto();
+    public static PixRequisicaoDto createPixKeyInvalid() {
+        PixRequisicaoDto pixKey = new PixRequisicaoDto();
         pixKey.setId(UUID.randomUUID().toString());
         pixKey.setTipoChave(null);
         pixKey.setValorChave("test@example.com");
@@ -100,8 +100,8 @@ public class GeradorMassas {
         return pixKey;
     }
 
-    public static PixKeyRequestDto createInvalidPixKeyRequestDto() {
-        PixKeyRequestDto dto = new PixKeyRequestDto();
+    public static PixRequisicaoDto createInvalidPixKeyRequestDto() {
+        PixRequisicaoDto dto = new PixRequisicaoDto();
         // Intencionalmente deixar campos obrigatórios nulos ou inválidos
         dto.setTipoChave(null); // Tipo de chave obrigatório
         dto.setValorChave(""); // Valor da chave obrigatório e não pode ser vazio
@@ -113,8 +113,8 @@ public class GeradorMassas {
         return dto;
     }
 
-    public static PixKeyRequestDto createDuplicatedPixKeyRequestDto() {
-        PixKeyRequestDto dto = createPixKeyRequestDto();
+    public static PixRequisicaoDto createDuplicatedPixKeyRequestDto() {
+        PixRequisicaoDto dto = createPixKeyRequestDto();
         // Ajustar o valor da chave para que seja considerado duplicado
         dto.setValorChave("duplicated@example.com");
         return dto;

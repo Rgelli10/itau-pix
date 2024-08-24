@@ -1,9 +1,7 @@
 package com.itau.pix.model.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.itau.pix.model.TipoChave;
+import com.itau.pix.model.enums.TipoChave;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -12,11 +10,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PixKeyUpdateRequestDto {
+public class PixAlterarRequisicaoDto {
     private String id;
-
     private TipoChave tipoChave;
-
     private String valorChave;
 
     @NotBlank(message = "Tipo de conta é obrigatório.")

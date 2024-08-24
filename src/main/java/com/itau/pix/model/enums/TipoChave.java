@@ -1,4 +1,4 @@
-package com.itau.pix.model;
+package com.itau.pix.model.enums;
 
 public enum TipoChave {
     CELULAR,

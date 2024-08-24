@@ -1,13 +1,12 @@
 package com.itau.pix.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itau.pix.exception.PixKeyValidationException;
+import com.itau.pix.exception.PixValidadorException;
 import com.itau.pix.massas.GeradorMassas;
-import com.itau.pix.model.PixKey;
-import com.itau.pix.model.TipoChave;
-import com.itau.pix.model.dto.PixKeyRequestDto;
-import com.itau.pix.model.dto.PixKeyUpdateRequestDto;
-import com.itau.pix.service.PixKeyService;
+import com.itau.pix.model.PixModelo;
+import com.itau.pix.model.enums.TipoChave;
+import com.itau.pix.model.dto.PixRequisicaoDto;
+import com.itau.pix.model.dto.PixAlterarRequisicaoDto;
+import com.itau.pix.service.PixService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -34,16 +33,16 @@ public class PixControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private PixKeyService pixService;
+    private PixService pixService;
 
     @Test
     public void testCreatePixKey() throws Exception {
-        PixKeyRequestDto requestDto = GeradorMassas.createPixKeyRequestDto();
-        PixKey createdPixKey = GeradorMassas.createPixKey();
+        PixRequisicaoDto requestDto = GeradorMassas.createPixKeyRequestDto();
+        PixModelo createdPixKey = GeradorMassas.createPixKey();
 
-        when(pixService.registerPixKey(any())).thenReturn(createdPixKey);
+        when(pixService.cadastrar(any())).thenReturn(createdPixKey);
 
-        mockMvc.perform(post("/api/v1/pix/register")
+        mockMvc.perform(post("/api/v1/pix/cadastrar")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(GeradorMassas.asJsonString(requestDto)))
                 .andExpect(status().isOk())
@@ -53,11 +52,11 @@ public class PixControllerTest {
     @Test
     public void testUpdatePixKey() throws Exception {
         UUID id = UUID.randomUUID();
-        PixKeyUpdateRequestDto updateRequest = GeradorMassas.createPixKeyUpdateRequestDto();
-        PixKey updatedPixKey = GeradorMassas.createPixKey();
+        PixAlterarRequisicaoDto updateRequest = GeradorMassas.createPixKeyUpdateRequestDto();
+        PixModelo updatedPixKey = GeradorMassas.createPixKey();
         updatedPixKey.setId(id.toString());
 
-        when(pixService.updatePixKey(eq(id), any(PixKeyUpdateRequestDto.class))).thenReturn(updatedPixKey);
+        when(pixService.alterar(eq(id), any(PixAlterarRequisicaoDto.class))).thenReturn(updatedPixKey);
 
         mockMvc.perform(put("/api/v1/pix/chave/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -77,10 +76,10 @@ public class PixControllerTest {
         LocalDateTime dataHoraInativacao = LocalDateTime.now();
 
         // Crie uma lista de PixKey
-        List<PixKey> pixKeys = GeradorMassas.createPixKeyList(3);
+        List<PixModelo> pixKeys = GeradorMassas.createPixKeyList(3);
 
         // Configure o mock para retornar a ResponseEntity com a lista de PixKey
-        when(pixService.searchPixKeys(
+        when(pixService.buscar(
                 eq(id),
                 eq(tipoChave),
                 eq(numeroAgencia),
@@ -95,7 +94,7 @@ public class PixControllerTest {
         String dataHoraInativacaoString = dataHoraInativacao.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
         // Execute a requisição GET com os parâmetros
-        mockMvc.perform(get("/api/v1/pix/search")
+        mockMvc.perform(get("/api/v1/pix/buscar")
                         .param("id", id.toString())
                         .param("tipoChave", tipoChave.name())
                         .param("numeroAgencia", numeroAgencia)
@@ -111,7 +110,7 @@ public class PixControllerTest {
 
     @Test
     public void testSearchPixKeysInvalidParameters() throws Exception {
-        mockMvc.perform(get("/api/v1/pix/search")
+        mockMvc.perform(get("/api/v1/pix/buscar")
                         .param("id", "invalid-uuid")
                         .param("tipoChave", "invalid")
                         .param("numeroAgencia", "12345")
@@ -125,11 +124,11 @@ public class PixControllerTest {
     @Test
     public void testDeactivatePixKey() throws Exception {
         UUID id = UUID.randomUUID();
-        PixKey deactivatedKey = GeradorMassas.createPixKey();
+        PixModelo deactivatedKey = GeradorMassas.createPixKey();
         deactivatedKey.setId(id.toString());
         deactivatedKey.setInativa(true);
 
-        when(pixService.deactivatePixKey(eq(id))).thenReturn(ResponseEntity.ok(deactivatedKey));
+        when(pixService.desativar(eq(id))).thenReturn(ResponseEntity.ok(deactivatedKey));
 
         mockMvc.perform(delete("/api/v1/pix/{id}", id))
                 .andExpect(status().isOk())
@@ -141,7 +140,7 @@ public class PixControllerTest {
         UUID id = UUID.fromString(GeradorMassas.createPixKey().getId());
         String errorMessage = "Chave Pix não encontrada ou inválida.";
 
-        when(pixService.deactivatePixKey(id)).thenThrow(new PixKeyValidationException(errorMessage));
+        when(pixService.desativar(id)).thenThrow(new PixValidadorException(errorMessage));
 
         mockMvc.perform(delete("/api/v1/pix/" + id))
                 .andExpect(status().isUnprocessableEntity());

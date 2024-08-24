@@ -1,13 +1,12 @@
 package com.itau.pix.service;
 
-import com.itau.pix.exception.PixKeyValidationException;
-import com.itau.pix.massas.GeradorMassas;
-import com.itau.pix.model.PixKey;
-import com.itau.pix.model.TipoChave;
-import com.itau.pix.model.dto.PixKeyRequestDto;
-import com.itau.pix.model.dto.PixKeyUpdateRequestDto;
-import com.itau.pix.repository.PixKeyRepository;
-import com.itau.pix.validator.PixKeyValidator;
+import com.itau.pix.exception.PixValidadorException;
+import com.itau.pix.model.PixModelo;
+import com.itau.pix.model.enums.TipoChave;
+import com.itau.pix.model.dto.PixRequisicaoDto;
+import com.itau.pix.model.dto.PixAlterarRequisicaoDto;
+import com.itau.pix.repository.PixRepository;
+import com.itau.pix.validator.PixValidador;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,18 +29,17 @@ import static org.mockito.Mockito.*;
 public class PixServiceTest {
 
     @InjectMocks
-    private PixKeyService pixKeyService;
+    private PixService pixKeyService;
 
     @Mock
-    private PixKeyRepository pixKeyRepository;
+    private PixRepository pixKeyRepository;
 
     @Mock
-    private PixKeyValidator pixKeyValidator;
+    private PixValidador pixKeyValidator;
 
     @Test
     public void testRegisterPixKey() {
-        PixKeyRequestDto requestDto = new PixKeyRequestDto();
-        // Preencha com dados válidos
+        PixRequisicaoDto requestDto = new PixRequisicaoDto();
         requestDto.setId(null);
         requestDto.setTipoChave(TipoChave.EMAIL);
         requestDto.setValorChave("test@example.com");
@@ -52,35 +50,35 @@ public class PixServiceTest {
         requestDto.setSobrenomeCorrentista("Silva");
         requestDto.setPessoaFisica(true);
 
-        PixKey pixKey = new PixKey();
+        PixModelo pixKey = new PixModelo();
         pixKey.setId(UUID.randomUUID().toString());
-        when(pixKeyRepository.save(any(PixKey.class))).thenReturn(pixKey);
+        when(pixKeyRepository.save(any(PixModelo.class))).thenReturn(pixKey);
 
-        PixKey createdKey = pixKeyService.registerPixKey(requestDto);
+        PixModelo createdKey = pixKeyService.cadastrar(requestDto);
 
         assertNotNull(createdKey);
         assertNotNull(createdKey.getId());
-        verify(pixKeyRepository, times(1)).save(any(PixKey.class));
+        verify(pixKeyRepository, times(1)).save(any(PixModelo.class));
     }
 
     @Test
     public void testUpdatePixKey() {
         UUID id = UUID.randomUUID();
-        PixKeyUpdateRequestDto updateRequest = new PixKeyUpdateRequestDto();
+        PixAlterarRequisicaoDto updateRequest = new PixAlterarRequisicaoDto();
         updateRequest.setTipoChave(TipoChave.CPF);
 
-        PixKey existingKey = new PixKey();
+        PixModelo existingKey = new PixModelo();
         existingKey.setId(id.toString());
 
         when(pixKeyRepository.findById(id)).thenReturn(Optional.of(existingKey));
-        when(pixKeyRepository.save(any(PixKey.class))).thenReturn(existingKey);
+        when(pixKeyRepository.save(any(PixModelo.class))).thenReturn(existingKey);
 
-        PixKey updatedKey = pixKeyService.updatePixKey(id, updateRequest);
+        PixModelo updatedKey = pixKeyService.alterar(id, updateRequest);
 
         assertNotNull(updatedKey);
         assertEquals(id.toString(), updatedKey.getId());
         verify(pixKeyRepository, times(1)).findById(id);
-        verify(pixKeyRepository, times(1)).save(any(PixKey.class));
+        verify(pixKeyRepository, times(1)).save(any(PixModelo.class));
     }
 
 //    @Test
@@ -127,7 +125,7 @@ public class PixServiceTest {
                 eq(tipoChave), eq(numeroAgencia), eq(numeroConta), eq(nomeCorrentista), eq(dataHoraInclusao)))
                 .thenReturn(Collections.emptyList());
 
-        ResponseEntity<List<PixKey>> response = pixKeyService.searchPixKeys(
+        ResponseEntity<List<PixModelo>> response = pixKeyService.buscar(
                 id, tipoChave, numeroAgencia, numeroConta, nomeCorrentista, dataHoraInclusao, dataHoraInativacao);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -144,11 +142,11 @@ public class PixServiceTest {
         LocalDateTime dataHoraInclusao = LocalDateTime.now().minusDays(1);
         LocalDateTime dataHoraInativacao = LocalDateTime.now();
 
-        doThrow(new PixKeyValidationException("Número da agência inválido"))
-                .when(pixKeyValidator).validateSearchPixKeysFilters(id, tipoChave, numeroAgencia, numeroConta, nomeCorrentista, dataHoraInclusao, dataHoraInativacao);
+        doThrow(new PixValidadorException("Número da agência inválido"))
+                .when(pixKeyValidator).validadorBuscaFiltros(id, tipoChave, numeroAgencia, numeroConta, nomeCorrentista, dataHoraInclusao, dataHoraInativacao);
 
-        Exception exception = assertThrows(PixKeyValidationException.class, () -> {
-            pixKeyService.searchPixKeys(id, tipoChave, numeroAgencia, numeroConta, nomeCorrentista, dataHoraInclusao, dataHoraInativacao);
+        Exception exception = assertThrows(PixValidadorException.class, () -> {
+            pixKeyService.buscar(id, tipoChave, numeroAgencia, numeroConta, nomeCorrentista, dataHoraInclusao, dataHoraInativacao);
         });
 
         assertTrue(exception.getMessage().contains("Número da agência inválido"));
@@ -157,17 +155,17 @@ public class PixServiceTest {
     @Test
     public void testDeactivatePixKey() {
         UUID id = UUID.randomUUID();
-        PixKey existingKey = new PixKey();
+        PixModelo existingKey = new PixModelo();
         existingKey.setId(id.toString());
         when(pixKeyRepository.findById(id)).thenReturn(Optional.of(existingKey));
-        when(pixKeyRepository.save(any(PixKey.class))).thenReturn(existingKey);
+        when(pixKeyRepository.save(any(PixModelo.class))).thenReturn(existingKey);
 
-        ResponseEntity<PixKey> response = pixKeyService.deactivatePixKey(id);
+        ResponseEntity<PixModelo> response = pixKeyService.desativar(id);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(id.toString(), response.getBody().getId());
         assertTrue(response.getBody().isInativa());
         verify(pixKeyRepository, times(1)).findById(id);
-        verify(pixKeyRepository, times(1)).save(any(PixKey.class));
+        verify(pixKeyRepository, times(1)).save(any(PixModelo.class));
     }
 }

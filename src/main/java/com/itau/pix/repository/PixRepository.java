@@ -1,7 +1,7 @@
 package com.itau.pix.repository;
 
-import com.itau.pix.model.PixKey;
-import com.itau.pix.model.TipoChave;
+import com.itau.pix.model.PixModelo;
+import com.itau.pix.model.enums.TipoChave;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.stereotype.Repository;
@@ -15,20 +15,20 @@ import java.util.UUID;
         basePackages = "com.itau.pix.repository.mongo",
         mongoTemplateRef = "mongoTemplate"
 )
-public interface PixKeyRepository extends MongoRepository<PixKey, UUID> {
+public interface PixRepository extends MongoRepository<PixModelo, UUID> {
     boolean existsByValorChave(String valorChave);
     boolean existsByTipoChaveAndNumeroConta(String tipoChave, String numeroConta);
     boolean existsByValorChaveAndNomeCorrentista(String valorChave, String conta);
     long countByNumeroAgenciaAndNumeroConta(String numeroAgencia, String numeroConta);
-    List<PixKey> findByTipoChaveAndNumeroAgenciaAndNumeroConta(TipoChave tipoChave, String numeroAgencia, String numeroConta);
-    List<PixKey> findByTipoChaveAndNumeroAgenciaAndNumeroContaAndNomeCorrentistaAndDataHoraInclusao(
+    List<PixModelo> findByTipoChaveAndNumeroAgenciaAndNumeroConta(TipoChave tipoChave, String numeroAgencia, String numeroConta);
+    List<PixModelo> findByTipoChaveAndNumeroAgenciaAndNumeroContaAndNomeCorrentistaAndDataHoraInclusao(
             TipoChave tipoChave, String numeroAgencia, String numeroConta, String nomeCorrentista, LocalDateTime dataHoraInclusao);
-    List<PixKey> findByTipoChaveAndNumeroAgenciaAndNumeroContaAndNomeCorrentistaAndDataHoraInativacao(
+    List<PixModelo> findByTipoChaveAndNumeroAgenciaAndNumeroContaAndNomeCorrentistaAndDataHoraInativacao(
             TipoChave tipoChave, String numeroAgencia, String numeroConta, String nomeCorrentista, LocalDateTime dataHoraInativacao);
-    List<PixKey> findByTipoChave(TipoChave tipoChave);
-    List<PixKey> findByNumeroAgenciaAndNumeroConta(String numeroAgencia, String numeroConta);
-    List<PixKey> findByNomeCorrentista(String nomeCorrentista);
-    List<PixKey> findByDataHoraInclusao(LocalDateTime dataHoraInclusao);
-    List<PixKey> findByDataHoraInativacao(LocalDateTime dataHoraInativacao);
+    List<PixModelo> findByTipoChave(TipoChave tipoChave);
+    List<PixModelo> findByNumeroAgenciaAndNumeroConta(String numeroAgencia, String numeroConta);
+    List<PixModelo> findByNomeCorrentista(String nomeCorrentista);
+    List<PixModelo> findByDataHoraInclusao(LocalDateTime dataHoraInclusao);
+    List<PixModelo> findByDataHoraInativacao(LocalDateTime dataHoraInativacao);
 
 }

@@ -1,20 +1,19 @@
 package com.itau.pix.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.itau.pix.model.enums.TipoChave;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Getter
 @Setter
 @Document(collection = "pix_keys")
-public class PixKey {
+public class PixModelo {
 
     @Id
     private String id;
