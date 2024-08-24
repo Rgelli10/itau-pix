@@ -7,6 +7,9 @@ services:
       - 27017:27017
     volumes:
       - mongo-data:/data/db
+    networks:
+      - app-network
+
   app:
     build: .
     ports:
@@ -15,6 +18,11 @@ services:
       - mongodb
     environment:
       - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/pixdb
+    networks:
+      - app-network
 
 volumes:
   mongo-data:
+
+networks:
+  app-network:
