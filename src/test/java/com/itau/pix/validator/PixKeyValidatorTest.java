@@ -22,7 +22,7 @@ public class PixKeyValidatorTest {
     private PixRepository repository;
 
     @InjectMocks
-    private PixValidador validator;
+    private PixValidadorStrategy validator;
 
     @BeforeEach
     public void setUp() {

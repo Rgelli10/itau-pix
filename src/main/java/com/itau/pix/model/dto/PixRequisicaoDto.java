@@ -1,6 +1,9 @@
 package com.itau.pix.model.dto;
 
 import com.itau.pix.model.enums.TipoChave;
+import com.itau.pix.model.enums.TipoCorrentista;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -40,7 +43,7 @@ public class PixRequisicaoDto {
     @Size(max = 45, message = "Sobrenome do correntista deve ter no máximo 45 caracteres.")
     private String sobrenomeCorrentista;
 
-    private boolean pessoaFisica;
-    private boolean pessoaJuridica;
-
+    @NotNull(message = "Tipo de correntista é obrigatório.")
+    @Enumerated(EnumType.STRING)
+    private TipoCorrentista tipoCorrentista;
 }

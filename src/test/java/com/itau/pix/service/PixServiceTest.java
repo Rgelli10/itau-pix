@@ -6,7 +6,7 @@ import com.itau.pix.model.enums.TipoChave;
 import com.itau.pix.model.dto.PixRequisicaoDto;
 import com.itau.pix.model.dto.PixAlterarRequisicaoDto;
 import com.itau.pix.repository.PixRepository;
-import com.itau.pix.validator.PixValidador;
+import com.itau.pix.validator.PixValidadorStrategy;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,7 +35,7 @@ public class PixServiceTest {
     private PixRepository pixKeyRepository;
 
     @Mock
-    private PixValidador pixKeyValidator;
+    private PixValidadorStrategy pixKeyValidator;
 
     @Test
     public void testRegisterPixKey() {

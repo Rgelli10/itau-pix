@@ -1,6 +1,5 @@
 package com.itau.pix.controller;
 
-import com.itau.pix.exception.PixValidadorException;
 import com.itau.pix.model.PixModelo;
 import com.itau.pix.model.enums.TipoChave;
 import com.itau.pix.model.dto.PixRequisicaoDto;
@@ -25,8 +24,8 @@ public class PixController {
     private PixService pixService;
 
     @PostMapping("/cadastrar")
-    public ResponseEntity<Map<String, String>> cadastrarChavePix(@Valid @RequestBody PixRequisicaoDto request) {
-        PixModelo createdKey = pixService.cadastrar(request);
+    public ResponseEntity<Map<String, String>> cadastrarChavePix(@Valid @RequestBody PixRequisicaoDto requisicao) {
+        PixModelo createdKey = pixService.cadastrar(requisicao);
         Map<String, String> response = new HashMap<>();
         response.put("id", createdKey.getId());
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -35,9 +34,9 @@ public class PixController {
     @PutMapping("/chave/{id}")
     public ResponseEntity<PixModelo> alterarChavePix(
             @PathVariable UUID id,
-            @Valid @RequestBody PixAlterarRequisicaoDto updateRequest) {
-        PixModelo updatedKey = pixService.alterar(id, updateRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(updatedKey);
+            @Valid @RequestBody PixAlterarRequisicaoDto requisicaoAlterar) {
+        PixModelo alterarChave = pixService.alterar(id, requisicaoAlterar);
+        return ResponseEntity.status(HttpStatus.OK).body(alterarChave);
     }
 
     @GetMapping("/buscar")
@@ -54,12 +53,7 @@ public class PixController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> desativarChavePix(@PathVariable UUID id) {
-        try {
-            PixModelo deactivatedKey = pixService.desativar(id).getBody();
-            return ResponseEntity.ok(deactivatedKey);
-        } catch (PixValidadorException ex) {
-            return ResponseEntity.unprocessableEntity().body(ex.getMessage());
-        }
+    public ResponseEntity<PixModelo> desativarChavePix(@PathVariable UUID id) {
+        return pixService.desativar(id);
     }
 }

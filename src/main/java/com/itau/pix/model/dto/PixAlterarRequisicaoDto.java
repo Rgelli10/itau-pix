@@ -1,7 +1,11 @@
 package com.itau.pix.model.dto;
 
 import com.itau.pix.model.enums.TipoChave;
+import com.itau.pix.model.enums.TipoCorrentista;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -11,6 +15,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PixAlterarRequisicaoDto {
+
     private String id;
     private TipoChave tipoChave;
     private String valorChave;
@@ -34,4 +39,8 @@ public class PixAlterarRequisicaoDto {
 
     @Size(max = 45, message = "Sobrenome do correntista deve ter no máximo 45 caracteres.")
     private String sobrenomeCorrentista;
+
+    @NotNull(message = "Tipo de correntista é obrigatório.")
+    @Enumerated(EnumType.STRING)
+    private TipoCorrentista tipoCorrentista;
 }

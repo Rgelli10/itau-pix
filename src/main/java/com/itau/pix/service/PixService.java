@@ -1,31 +1,28 @@
 package com.itau.pix.service;
 
-import com.itau.pix.exception.PixValidadorException;
+import com.itau.pix.exception.NaoEncontradoException;
 import com.itau.pix.model.PixModelo;
 import com.itau.pix.model.enums.TipoChave;
 import com.itau.pix.model.dto.PixRequisicaoDto;
 import com.itau.pix.model.dto.PixAlterarRequisicaoDto;
 import com.itau.pix.repository.PixRepository;
-import com.itau.pix.validator.PixValidador;
+import com.itau.pix.validator.PixValidadorStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
 public class PixService {
-
     @Autowired
     private PixRepository repository;
     @Autowired
-    private PixValidador validator;
+    private PixValidadorStrategy validador;
 
     public PixModelo cadastrar(PixRequisicaoDto requisicao) {
-        validator.validadorRequisicao(requisicao);
+        validador.validadorRequisicao(requisicao);
 
         if (requisicao.getId() == null) {
             requisicao.setId(UUID.randomUUID().toString());
@@ -48,9 +45,9 @@ public class PixService {
 
     public PixModelo alterar(UUID id, PixAlterarRequisicaoDto requisicaoAlterar) {
         PixModelo ChaveExiste = repository.findById(id)
-                .orElseThrow(() -> new PixValidadorException("ID não encontrado."));
+                .orElseThrow(() -> new NaoEncontradoException("ID não encontrado."));
 
-        validator.validadorRequisicaoAlterar(ChaveExiste, requisicaoAlterar);
+        validador.validadorRequisicaoAlterar(ChaveExiste, requisicaoAlterar);
 
         if (requisicaoAlterar.getTipoConta() != null) ChaveExiste.setTipoConta(requisicaoAlterar.getTipoConta());
         if (requisicaoAlterar.getNumeroAgencia() != null) ChaveExiste.setNumeroAgencia(requisicaoAlterar.getNumeroAgencia());
@@ -70,49 +67,50 @@ public class PixService {
             LocalDateTime dataHoraInclusao,
             LocalDateTime dataHoraInativacao
     ) {
-        validator.validadorBuscaFiltros(id, tipoChave, numeroAgencia, numeroConta, nomeCorrentista, dataHoraInclusao, dataHoraInativacao);
 
-        List<PixModelo> resulado;
+        validador.validadorBuscaFiltros(id, tipoChave, numeroAgencia, numeroConta, nomeCorrentista, dataHoraInclusao, dataHoraInativacao);
+
+        List<PixModelo> resultado;
         if (tipoChave != null) {
             if (numeroAgencia != null && numeroConta != null) {
                 if (dataHoraInclusao != null) {
-                    resulado = repository.findByTipoChaveAndNumeroAgenciaAndNumeroContaAndNomeCorrentistaAndDataHoraInclusao(
+                    resultado = repository.findByTipoChaveAndNumeroAgenciaAndNumeroContaAndNomeCorrentistaAndDataHoraInclusao(
                             tipoChave, numeroAgencia, numeroConta, nomeCorrentista, dataHoraInclusao);
                 } else if (dataHoraInativacao != null) {
-                    resulado = repository.findByTipoChaveAndNumeroAgenciaAndNumeroContaAndNomeCorrentistaAndDataHoraInativacao(
+                    resultado = repository.findByTipoChaveAndNumeroAgenciaAndNumeroContaAndNomeCorrentistaAndDataHoraInativacao(
                             tipoChave, numeroAgencia, numeroConta, nomeCorrentista, dataHoraInativacao);
                 } else {
-                    resulado = repository.findByTipoChaveAndNumeroAgenciaAndNumeroConta(tipoChave, numeroAgencia, numeroConta);
+                    resultado = repository.findByTipoChaveAndNumeroAgenciaAndNumeroConta(tipoChave, numeroAgencia, numeroConta);
                 }
             } else {
-                resulado = repository.findByTipoChave(tipoChave);
+                resultado = repository.findByTipoChave(tipoChave);
             }
         } else if (numeroAgencia != null && numeroConta != null) {
-            resulado = repository.findByNumeroAgenciaAndNumeroConta(numeroAgencia, numeroConta);
+            resultado = repository.findByNumeroAgenciaAndNumeroConta(numeroAgencia, numeroConta);
         } else if (nomeCorrentista != null) {
-            resulado = repository.findByNomeCorrentista(nomeCorrentista);
+            resultado = repository.findByNomeCorrentista(nomeCorrentista);
         } else if (dataHoraInclusao != null) {
-            resulado = repository.findByDataHoraInclusao(dataHoraInclusao);
+            resultado = repository.findByDataHoraInclusao(dataHoraInclusao);
         } else if (dataHoraInativacao != null) {
-            resulado = repository.findByDataHoraInativacao(dataHoraInativacao);
+            resultado = repository.findByDataHoraInativacao(dataHoraInativacao);
         } else {
-            resulado = new ArrayList<>();
+            resultado = new ArrayList<>();
         }
 
-        resulado = validator.filtroChaveInativa(resulado);
+        resultado = validador.filtroChaveInativa(resultado);
 
-        if (resulado.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+        if (resultado.isEmpty()) {
+            throw new NaoEncontradoException("Nenhuma chave encontrada com os critérios fornecidos.");
         }
 
-        return ResponseEntity.ok(resulado);
+        return ResponseEntity.ok(resultado);
     }
 
     public ResponseEntity<PixModelo> desativar(UUID id) {
         PixModelo chaveExiste = repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ID não encontrado."));
+                .orElseThrow(() -> new NaoEncontradoException("ID não encontrado."));
 
-        validator.validadorChaveAtiva(chaveExiste);
+        validador.validadorChaveAtiva(chaveExiste);
 
         chaveExiste.setInativa(true);
         chaveExiste.setDataHoraInativacao(LocalDateTime.now());

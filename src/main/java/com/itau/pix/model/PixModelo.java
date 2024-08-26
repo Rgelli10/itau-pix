@@ -2,6 +2,7 @@ package com.itau.pix.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.itau.pix.model.enums.TipoChave;
+import com.itau.pix.model.enums.TipoCorrentista;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,6 +30,6 @@ public class PixModelo {
     private LocalDateTime dataHoraInativacao;
     @JsonIgnore
     private boolean inativa;
-    @JsonIgnore
-    private boolean isPessoaFisica;
+    @Enumerated(EnumType.STRING)
+    private TipoCorrentista tipoCorrentista;
 }
