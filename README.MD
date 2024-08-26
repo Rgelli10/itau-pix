@@ -57,7 +57,7 @@ Estrutura do Projeto
 
 ## Testes
 - Os testes unitários estão localizados no diretório `src/test/java/br/com/itau/pix`.
-- A cobertura de testes é de 97%.
+- A cobertura de testes é de 93%.
 
 ## Contato
 - Nome: Ricardo Gelli
